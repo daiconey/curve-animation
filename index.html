@@ -10,20 +10,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 m-0 overflow-hidden">
+<body class="bg-slate-900 font-sans text-slate-800 m-0 overflow-hidden">
     <div class="flex flex-col md:flex-row h-screen">
         
-        <!-- メインキャンバスエリア -->
-        <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden">
-            <div class="w-full max-w-5xl bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
-                <div class="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" id="canvas-container">
-                    <canvas id="curveCanvas" class="absolute top-0 left-0 w-full h-full object-contain"></canvas>
-                </div>
-            </div>
+        <!-- メインキャンバスエリア（画面いっぱいに広げる） -->
+        <div class="flex-1 relative overflow-hidden bg-slate-900 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" id="canvas-container">
+            <canvas id="curveCanvas" class="absolute top-0 left-0 w-full h-full block"></canvas>
         </div>
 
-        <!-- コントロールパネル -->
-        <div class="w-full md:w-96 bg-white shadow-xl flex flex-col border-l border-slate-200 z-10 md:h-screen overflow-y-auto">
+        <!-- コントロールパネル（右側に固定） -->
+        <div class="w-full md:w-[400px] shrink-0 bg-white shadow-2xl flex flex-col border-l border-slate-200 z-10 md:h-screen overflow-y-auto">
             
             <!-- ヘッダー -->
             <div class="p-6 border-b border-slate-100 bg-white sticky top-0 z-20">
@@ -70,7 +66,6 @@
                     
                     <div class="flex gap-2">
                         <button id="playBtn" class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-white font-medium transition-all shadow-sm bg-blue-600 hover:bg-blue-700 active:bg-blue-800">
-                            <!-- Play Icon initially -->
                             <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                             <svg id="pauseIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
                             <span id="playText">再生</span>
@@ -100,8 +95,8 @@
             cycloid: {
                 id: 'cycloid', name: 'サイクロイド',
                 equation: '\\begin{cases} x = a(\\theta - \\sin\\theta) \\\\ y = a(1 - \\cos\\theta) \\end{cases}',
-                params: [{ id: 'a', label: 'a (円の半径)', min: 10, max: 100, step: 1, default: 40 }],
-                drawOffset: { x: -300, y: 150 }, maxTheta: Math.PI * 6, // 3周期で停止
+                params: [{ id: 'a', label: 'a (円の半径)', min: 10, max: 200, step: 1, default: 60 }],
+                drawOffset: { x: -400, y: 150 }, maxTheta: Math.PI * 6, // 3周期で停止
                 calc: (t, p) => ({ x: p.a * (t - Math.sin(t)), y: p.a * (1 - Math.cos(t)) }),
                 drawExtras: (ctx, t, p, currentPos) => {
                     const cx = p.a * t; const cy = p.a;
@@ -114,10 +109,10 @@
                 id: 'trochoid', name: 'トロコイド',
                 equation: '\\begin{cases} x = a\\theta - b\\sin\\theta \\\\ y = a - b\\cos\\theta \\end{cases}',
                 params: [
-                    { id: 'a', label: 'a (円の半径)', min: 10, max: 100, step: 1, default: 40 },
-                    { id: 'b', label: 'b (動点の距離)', min: 10, max: 150, step: 1, default: 60 }
+                    { id: 'a', label: 'a (円の半径)', min: 10, max: 200, step: 1, default: 60 },
+                    { id: 'b', label: 'b (動点の距離)', min: 10, max: 300, step: 1, default: 90 }
                 ],
-                drawOffset: { x: -300, y: 150 }, maxTheta: Math.PI * 6,
+                drawOffset: { x: -400, y: 150 }, maxTheta: Math.PI * 6,
                 calc: (t, p) => ({ x: p.a * t - p.b * Math.sin(t), y: p.a - p.b * Math.cos(t) }),
                 drawExtras: (ctx, t, p, currentPos) => {
                     const cx = p.a * t; const cy = p.a;
@@ -126,33 +121,17 @@
                     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(currentPos.x, currentPos.y); ctx.stroke();
                 }
             },
-            trochoid: {
-                id: 'trochoid', name: 'トロコイド',
-                equation: '\\begin{cases} x = a\\theta - b\\sin\\theta \\\\ y = a - b\\cos\\theta \\end{cases}',
-                params: [
-                    { id: 'a', label: 'a (円の半径)', min: 10, max: 100, step: 1, default: 40 },
-                    { id: 'b', label: 'b (動点の距離)', min: 10, max: 150, step: 1, default: 60 }
-                ],
-                drawOffset: { x: -300, y: 150 }, maxTheta: Math.PI * 6,
-                calc: (t, p) => ({ x: p.a * t - p.b * Math.sin(t), y: p.a - p.b * Math.cos(t) }),
-                drawExtras: (ctx, t, p, currentPos) => {
-                    const cx = p.a * t; const cy = p.a;
-                    ctx.beginPath(); ctx.arc(cx, cy, p.a, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(156, 163, 175, 0.5)'; ctx.stroke();
-                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(currentPos.x, currentPos.y); ctx.stroke();
-                }
-            },
             cardioid: {
                 id: 'cardioid', name: 'カージオイド',
                 equation: 'r = a(1 + \\cos\\theta) \\\\ \\begin{cases} x = a(2\\cos\\theta - \\cos 2\\theta) \\\\ y = a(2\\sin\\theta - \\sin 2\\theta) \\end{cases}',
-                params: [{ id: 'a', label: 'a (サイズ係数)', min: 10, max: 100, step: 1, default: 50 }],
+                params: [{ id: 'a', label: 'a (サイズ係数)', min: 10, max: 200, step: 1, default: 80 }],
                 drawOffset: { x: -50, y: 0 }, maxTheta: Math.PI * 2, // 1周で停止
                 calc: (t, p) => ({ x: p.a * (2 * Math.cos(t) - Math.cos(2 * t)), y: p.a * (2 * Math.sin(t) - Math.sin(2 * t)) })
             },
             astroid: {
                 id: 'astroid', name: 'アステロイド',
                 equation: '\\begin{cases} x = a\\cos^3\\theta \\\\ y = a\\sin^3\\theta \\end{cases}',
-                params: [{ id: 'a', label: 'a (サイズ係数)', min: 50, max: 250, step: 1, default: 120 }],
+                params: [{ id: 'a', label: 'a (サイズ係数)', min: 50, max: 400, step: 1, default: 200 }],
                 drawOffset: { x: 0, y: 0 }, maxTheta: Math.PI * 2, // 1周で停止
                 calc: (t, p) => ({ x: p.a * Math.pow(Math.cos(t), 3), y: p.a * Math.pow(Math.sin(t), 3) })
             },
@@ -160,8 +139,8 @@
                 id: 'lissajous', name: 'リサージュ曲線',
                 equation: '\\begin{cases} x = A\\sin(a\\theta + \\delta) \\\\ y = B\\sin(b\\theta) \\end{cases}',
                 params: [
-                    { id: 'A', label: 'A (X軸振幅)', min: 50, max: 300, step: 1, default: 180 },
-                    { id: 'B', label: 'B (Y軸振幅)', min: 50, max: 300, step: 1, default: 120 },
+                    { id: 'A', label: 'A (X軸振幅)', min: 50, max: 500, step: 1, default: 280 },
+                    { id: 'B', label: 'B (Y軸振幅)', min: 50, max: 500, step: 1, default: 200 },
                     { id: 'a', label: 'a (X周波数)', min: 1, max: 10, step: 0.1, default: 3 },
                     { id: 'b', label: 'b (Y周波数)', min: 1, max: 10, step: 0.1, default: 4 },
                     { id: 'delta', label: 'δ (位相差 × π)', min: 0, max: 2, step: 0.05, default: 0.5 }
@@ -174,7 +153,7 @@
                 equation: 'r = a + b\\theta \\\\ \\begin{cases} x = r\\cos\\theta \\\\ y = r\\sin\\theta \\end{cases}',
                 params: [
                     { id: 'a', label: 'a (初期半径)', min: 0, max: 100, step: 1, default: 0 },
-                    { id: 'b', label: 'b (間隔係数)', min: 1, max: 30, step: 0.5, default: 6 }
+                    { id: 'b', label: 'b (間隔係数)', min: 1, max: 50, step: 0.5, default: 10 }
                 ],
                 drawOffset: { x: 0, y: 0 }, maxTheta: Math.PI * 10, // 適度な巻き数で停止
                 calc: (t, p) => { const r = p.a + p.b * t; return { x: r * Math.cos(t), y: r * Math.sin(t) }; }
@@ -183,7 +162,7 @@
                 id: 'rose', name: '正葉曲線',
                 equation: 'r = a\\sin(k\\theta) \\\\ \\begin{cases} x = r\\cos\\theta \\\\ y = r\\sin\\theta \\end{cases}',
                 params: [
-                    { id: 'a', label: 'a (葉の長さ)', min: 50, max: 300, step: 1, default: 140 },
+                    { id: 'a', label: 'a (葉の長さ)', min: 50, max: 500, step: 1, default: 250 },
                     { id: 'k', label: 'k (葉のパラメータ)', min: 0.1, max: 10, step: 0.1, default: 4 }
                 ],
                 drawOffset: { x: 0, y: 0 }, maxTheta: Math.PI * 40, // 複雑な葉に対応するため長く
@@ -194,7 +173,7 @@
         // アプリケーション状態
         let selectedCurve = 'cycloid';
         let params = {};
-        let isPlaying = false; // 初期状態は停止または自動再生(後で切り替え)
+        let isPlaying = false;
         let speed = 0.05;
         let theta = 0;
         let requestRef = null;
@@ -213,17 +192,26 @@
         const speedSlider = document.getElementById('speedSlider');
         const canvasContainer = document.getElementById('canvas-container');
 
-        // キャンバスサイズの調整
+        // キャンバスサイズの調整（親要素いっぱいに広げる）
         function resizeCanvas() {
-            canvas.width = canvasContainer.clientWidth;
-            canvas.height = canvasContainer.clientHeight;
+            // ディスプレイの解像度に合わせてシャープに描画するための処理
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvasContainer.getBoundingClientRect();
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            // CSSの表示サイズはコンテナに合わせる
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+            
+            ctx.scale(dpr, dpr);
             draw();
         }
         window.addEventListener('resize', resizeCanvas);
 
         // UIの初期化
         function init() {
-            // セレクトボックスの生成
             Object.values(curveDefinitions).forEach(c => {
                 const option = document.createElement('option');
                 option.value = c.id;
@@ -231,18 +219,15 @@
                 curveSelect.appendChild(option);
             });
 
-            // KaTeX読み込み待ち
             const checkKatex = setInterval(() => {
                 if (window.katex) {
                     clearInterval(checkKatex);
                     changeCurve('cycloid');
-                    resizeCanvas();
                     // 初期再生
                     togglePlay(true);
                 }
             }, 100);
 
-            // イベントリスナー
             curveSelect.addEventListener('change', (e) => changeCurve(e.target.value));
             playBtn.addEventListener('click', () => togglePlay(!isPlaying));
             resetBtn.addEventListener('click', resetAnimation);
@@ -254,16 +239,13 @@
             selectedCurve = curveId;
             const curve = curveDefinitions[curveId];
             
-            // パラメータ初期化
             params = {};
             curve.params.forEach(p => { params[p.id] = p.default; });
             
-            // 数式表示
             if (window.katex) {
                 window.katex.render(curve.equation, formulaContainer, { displayMode: true, throwOnError: false });
             }
 
-            // スライダーUI生成
             paramsContainer.innerHTML = '';
             curve.params.forEach(p => {
                 const wrapper = document.createElement('div');
@@ -277,7 +259,6 @@
                 `;
                 paramsContainer.appendChild(wrapper);
 
-                // スライダーイベント
                 const slider = document.getElementById(`slider-${p.id}`);
                 const valDisplay = document.getElementById(`val-${p.id}`);
                 slider.addEventListener('input', (e) => {
@@ -287,14 +268,13 @@
                 });
             });
 
+            resizeCanvas(); // 曲線が変わるごとにサイズを再確認
             resetAnimation();
         }
 
-        // 再生・一時停止の切り替え
         function togglePlay(forceState) {
             isPlaying = forceState !== undefined ? forceState : !isPlaying;
             
-            // 終点に達していて、再度「再生」が押された場合は最初から
             if (isPlaying && theta >= curveDefinitions[selectedCurve].maxTheta) {
                 theta = 0;
             }
@@ -313,16 +293,14 @@
                 pauseIcon.classList.add('hidden');
                 playText.textContent = '再生';
                 if (requestRef) cancelAnimationFrame(requestRef);
-                draw(); // 停止時の状態を描画
+                draw(); 
             }
         }
 
-        // リセット処理
         function resetAnimation() {
             theta = 0;
             if (!isPlaying) draw();
             else {
-                // 再生中なら再度再生状態を維持しつつ描画
                 if (requestRef) cancelAnimationFrame(requestRef);
                 update();
             }
@@ -333,22 +311,25 @@
             if (!canvas.width || Object.keys(params).length === 0) return;
             
             const curve = curveDefinitions[selectedCurve];
-            const width = canvas.width;
-            const height = canvas.height;
+            const rect = canvasContainer.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
 
             ctx.clearRect(0, 0, width, height);
             ctx.save();
             
-            // 原点移動 (Y軸上向き)
+            // 原点移動 (キャンバス中心 + オフセット)
             ctx.translate(width / 2 + curve.drawOffset.x, height / 2 + curve.drawOffset.y);
-            ctx.scale(1, -1);
+            ctx.scale(1, -1); // Y軸上向き
 
             // 軸描画（ダーク背景用に薄い白）
             ctx.beginPath();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'; 
             ctx.lineWidth = 1;
-            ctx.moveTo(-width, 0); ctx.lineTo(width, 0);
-            ctx.moveTo(0, -height); ctx.lineTo(0, height);
+            // 軸を画面外まで十分に伸ばす
+            const axisLength = Math.max(width, height) * 2;
+            ctx.moveTo(-axisLength, 0); ctx.lineTo(axisLength, 0);
+            ctx.moveTo(0, -axisLength); ctx.lineTo(0, axisLength);
             ctx.stroke();
 
             // 軌跡描画用のグラデーション作成
@@ -372,25 +353,25 @@
             const currentPos = curve.calc(theta, params);
             ctx.lineTo(currentPos.x, currentPos.y);
             
-            // 軌跡全体にほのかなグロー効果
-            ctx.shadowBlur = 4;
+            // グロー効果
+            ctx.shadowBlur = 6;
             ctx.shadowColor = '#4facfe';
             ctx.stroke();
-            ctx.shadowBlur = 0; // リセット
+            ctx.shadowBlur = 0;
 
             // 補助線
             if (curve.drawExtras) {
                 curve.drawExtras(ctx, theta, params, currentPos);
             }
 
-            // 動点描画（星のように発光させる）
+            // 動点描画
             ctx.beginPath();
             ctx.arc(currentPos.x, currentPos.y, 4, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff'; 
             ctx.shadowBlur = 15;
             ctx.shadowColor = '#00f2fe';
             ctx.fill();
-            ctx.shadowBlur = 0; // リセット
+            ctx.shadowBlur = 0;
 
             ctx.restore();
         }
@@ -402,12 +383,11 @@
             theta += speed;
             const maxT = curveDefinitions[selectedCurve].maxTheta;
             
-            // 終点に達したらループせずに停止する処理
             if (theta >= maxT) {
-                theta = maxT; // 終点に固定
-                draw();       // 最後の位置を描画
-                togglePlay(false); // 再生状態を解除（UIも一時停止から再生ボタンへ戻る）
-                return;       // アニメーションループ終了
+                theta = maxT;
+                draw();
+                togglePlay(false);
+                return;
             }
 
             draw();
